@@ -73,19 +73,35 @@ class ZenossAPI(object):
         # Submit the request and convert the returned JSON to objects
         return json.loads(self.urlOpener.open(req, reqData).read())
 
-    def get_devices(self, deviceClass='/zport/dmd/Devices', start=0, limit=100):
+    def get_devices(self, deviceClass='/zport/dmd/Devices', start=0, limit=100, sort='name'):
         return self._router_request('DeviceRouter', 'getDevices',
                                     data=[{'uid': deviceClass,
-                                           'sort': 'name',
+                                           'sort': sort,
                                            'params': {},
                                            'start': start,
                                            'limit': limit, }])['result']
 
     def get_events(self, limit=100, start=0, device=None, component=None, eventClass=None):
-        data = dict(start=0, limit=100, dir='DESC', sort='severity')
+        data = dict(start=0, limit=100, dir='DESC', sort='severity',
+                                                                uid='/zport/dmd')
         data['params'] = dict(severity=[5,4,3,2], eventState=[0,1])
         data['limit'] = limit
         data['start'] = start
+        # Added for bug ZEN-2812
+        data['keys'] = [
+                        "eventState",
+                        "severity",
+                        "device",
+                        "component",
+                        "eventClass",
+                        "summary",
+                        "firstTime",
+                        "lastTime",
+                        "count",
+                        "evid",
+                        "eventClassKey",
+                        "message",
+                ]
 
         if device: data['params']['device'] = device
         if component: data['params']['component'] = component
