@@ -121,8 +121,13 @@ class ZenossAPI(object):
 
         return dict(evt_summary)
 
-    def add_device(self, deviceName, deviceClass):
-        data = dict(deviceName=deviceName, deviceClass=deviceClass)
+    def add_device(self, deviceName, deviceClass, productionState, model=True):
+        data = dict(
+                    deviceName=deviceName,
+                    deviceClass=deviceClass,
+                    model=model,
+                    productionState=productionState)
+
         return self._router_request('DeviceRouter', 'addDevice', [data])
 
     def create_event_on_device(self, device, severity, summary):
