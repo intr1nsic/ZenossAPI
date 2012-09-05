@@ -121,7 +121,7 @@ class ZenossAPI(object):
 
         return dict(evt_summary)
 
-    def add_device(self, deviceName, deviceClass, productionState, model=True):
+    def add_device(self, deviceName, deviceClass, productionState=1000, model=True):
         data = dict(
                     deviceName=deviceName,
                     deviceClass=deviceClass,
