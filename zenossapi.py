@@ -126,6 +126,23 @@ class ZenossAPI(object):
 
         return self._router_request('DeviceRouter', 'removeDevices', [data])
 
+    def set_state(self, uid=None, state=None):
+        """
+        Set the device to said production state
+        """
+        if uid is None:
+            raise Exception("UID must be set")
+
+        if state is None and state is int:
+            raise Exception("State must be set and must be an integer")
+
+        data = dict(
+                    uid = [uid],
+                    productionState = state,
+        )
+
+        return self._router_request('DeviceRouter', 'setInfo', [data])
+
     def get_event_summary(self):
         # Grab all of our events
         events = self.get_events(limit=5000)
