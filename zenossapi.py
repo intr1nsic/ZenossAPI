@@ -109,6 +109,23 @@ class ZenossAPI(object):
 
         return self._router_request('EventsRouter', 'query', [data])['result']
 
+    def remove_device(self, uid=None, action='delete', deleteEvents=True, deletePerf=True):
+        """
+        Remove a device from zenoss
+        """
+        if uid is None:
+            raise Exception('UID must be set')
+
+        data = dict(
+                    uids = [uid],
+                    hashcheck = 1,
+                    action = action,
+                    deleteEvents = deleteEvents,
+                    deletePerf = deletePerf,
+        )
+
+        return self._router_request('DeviceRouter', 'removeDevices', [data])
+
     def get_event_summary(self):
         # Grab all of our events
         events = self.get_events(limit=5000)
@@ -137,3 +154,5 @@ class ZenossAPI(object):
         data = dict(device=device, summary=summary, severity=severity,
                     component='', evclasskey='', evclass='')
         return self._router_request('EventsRouter', 'add_event', [data])
+
+
