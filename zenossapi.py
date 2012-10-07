@@ -3,17 +3,19 @@ import urllib
 import urllib2
 from collections import defaultdict
 
-ROUTERS = { 'MessagingRouter': 'messaging',
-            'EventsRouter': 'evconsole',
-            'ProcessRouter': 'process',
-            'ServiceRouter': 'service',
-            'DeviceRouter': 'device',
-            'NetworkRouter': 'network',
-            'TemplateRouter': 'template',
-            'DetailNavRouter': 'detailnav',
-            'ReportRouter': 'report',
-            'MibRouter': 'mib',
-            'ZenPackRouter': 'zenpack' }
+ROUTERS = {
+    'MessagingRouter': 'messaging',
+    'EventsRouter': 'evconsole',
+    'ProcessRouter': 'process',
+    'ServiceRouter': 'service',
+    'DeviceRouter': 'device',
+    'NetworkRouter': 'network',
+    'TemplateRouter': 'template',
+    'DetailNavRouter': 'detailnav',
+    'ReportRouter': 'report',
+    'MibRouter': 'mib',
+    'ZenPackRouter': 'zenpack'
+}
 
 ALERT_MAPPINGS = {
     1: 'Debug',
@@ -163,6 +165,10 @@ class ZenossAPI(object):
                     productionState=productionState)
 
         return self._router_request('DeviceRouter', 'addDevice', [data])
+
+    def getGraphs(self, uid):
+        data = dict(uid=uid)
+        return self._router_request('DeviceRouter', 'getGraphDefs', [data])
 
     def create_event_on_device(self, device, severity, summary):
         if severity not in ('Critical', 'Error', 'Warning', 'Info', 'Debug', 'Clear'):
