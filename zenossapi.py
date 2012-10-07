@@ -26,10 +26,12 @@ ALERT_MAPPINGS = {
 }
 
 class ZenossAPI(object):
+
     def __init__(self, host=None, username=None, password=None, port='8080', debug=False, *args, **kwargs):
         """
         Initialize the API connection, log in, and store authentication cookie
         """
+
         self.username = username
         self.password = password
         self.port = port
@@ -50,6 +52,7 @@ class ZenossAPI(object):
                             loginParams)
 
     def _router_request(self, router, method, data=[]):
+
         if router not in ROUTERS:
             raise Exception('Router "' + router + '" not available.')
 
@@ -75,15 +78,26 @@ class ZenossAPI(object):
         # Submit the request and convert the returned JSON to objects
         return json.loads(self.urlOpener.open(req, reqData).read())
 
-    def get_devices(self, deviceClass='/zport/dmd/Devices', start=0, limit=100, sort='name'):
+    def _raw_request(self, url):
+
+        if not url:
+            raise Exception('URL must be specified')
+
+        self.reqCount += 1
+        req = urllib2.Request(self.host + url)
+        return self.urlOpener.open(req).read()
+
+    def get_devices(self, deviceClass='/zport/dmd/Devices', params={}, start=0, limit=100, sort='name'):
+
         return self._router_request('DeviceRouter', 'getDevices',
                                     data=[{'uid': deviceClass,
                                            'sort': sort,
-                                           'params': {},
+                                           'params': params,
                                            'start': start,
                                            'limit': limit, }])['result']
 
     def get_events(self, limit=100, start=0, device=None, component=None, eventClass=None):
+
         data = dict(start=0, limit=100, dir='DESC', sort='severity',
                                                                 uid='/zport/dmd')
         data['params'] = dict(severity=[5,4,3,2], eventState=[0,1])
@@ -115,6 +129,7 @@ class ZenossAPI(object):
         """
         Remove a device from zenoss
         """
+
         if uid is None:
             raise Exception('UID must be set')
 
@@ -132,6 +147,7 @@ class ZenossAPI(object):
         """
         Set the device to said production state
         """
+
         if uid is None:
             raise Exception("UID must be set")
 
@@ -146,6 +162,7 @@ class ZenossAPI(object):
         return self._router_request('DeviceRouter', 'setInfo', [data])
 
     def get_event_summary(self):
+
         # Grab all of our events
         events = self.get_events(limit=5000)
 
@@ -158,6 +175,7 @@ class ZenossAPI(object):
         return dict(evt_summary)
 
     def add_device(self, deviceName, deviceClass, productionState=1000, model=True):
+
         data = dict(
                     deviceName=deviceName,
                     deviceClass=deviceClass,
@@ -166,11 +184,17 @@ class ZenossAPI(object):
 
         return self._router_request('DeviceRouter', 'addDevice', [data])
 
-    def getGraphs(self, uid):
+    def getGraphDefs(self, uid):
+
         data = dict(uid=uid)
         return self._router_request('DeviceRouter', 'getGraphDefs', [data])
 
+    def getGraph(self, url):
+
+        return self._raw_request(url)
+
     def create_event_on_device(self, device, severity, summary):
+
         if severity not in ('Critical', 'Error', 'Warning', 'Info', 'Debug', 'Clear'):
             raise Exception('Severity "' + severity +'" is not valid.')
 
